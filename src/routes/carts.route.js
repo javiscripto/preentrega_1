@@ -6,12 +6,12 @@ const carts=[];
 let Id=0;
 
 
-//crear nuevo carrito
+//post new cart
 route.post("/api/carts",(req,res)=>{
     
     const cart={id:Id++,products:[]}
     carts.push(cart);
-    res.json({message:`se ha creado nuevo carrito id`})
+    res.json({message:`se ha creado nuevo carrito id ${Id}`})
 })
 
 
@@ -36,20 +36,21 @@ route.post("/api/carts/:cid/product/:pid", (req, res) => {
     const indexCart = carts.findIndex((c) => c.id === idCart);
 
     if (indexCart === -1) {
-        res.status(400).json({ message: "Carrito no encontrado" });
+        res.status(400).json({ message: "not found" });
         return;
     }
+
 
     const cart = carts[indexCart];
     const existingProduct = cart.products.find((p) => p.id === idProd);
 
     if (existingProduct) {
         existingProduct.quantity += 1;
-        res.json({ message: "Se ha agregado una cantidad adicional del producto" });
+        res.json({ message: "added quantity to existing product" });
     } else {
         const product = { id: idProd, quantity: 1 };
         cart.products.push(product);
-        res.json({ message: "Se ha agregado un nuevo producto al carrito" });
+        res.json({ message: "new product added" });
     }
 });
 
