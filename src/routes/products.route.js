@@ -2,46 +2,29 @@ const express=require("express");
 const route=express.Router();
 
 
+//const fs= require("fs/promises");
+
+const localpath="./products.json"
 
 
-let products=[
-    // {
-    //     "title": "manzana",
-    //     "description": "manzana dulce",
-    //     "code": "a01",
-    //     "price": "1565",
-    //     "status": "true",
-    //     "stock": "26541",
-    //     "cat": "frutas",
-    //     "id": 0
-    // },
-    // {
-    //     "title": "pera",
-    //     "description": "pera de agua",
-    //     "code": "a02",
-    //     "price": "1565",
-    //     "status": "true",
-    //     "stock": "98798",
-    //     "cat": "frutas",
-    //     "id": 1
-    // },  {
-    //     "title": "naranja",
-    //     "description": "naranja norteña",
-    //     "code": "a02",
-    //     "price": "156",
-    //     "status": "true",
-    //     "stock": "261",
-    //     "cat": "citricas",
-    //     "id": 2
-    // }
-];
-//contiene productos de prueba
 
+
+let products=[];
 
 let Id=0;
+
+
+
+
+
+
+
+
+
 //all products
 route.get("/api/products",(requ,res)=>{
-    res.json(products)
+    
+    res.send(products)
 });
 
 //product by id
@@ -52,29 +35,39 @@ route.get("/api/products/:pid",(requ,res)=>{
 })
 
 //add new product
-route.post("/api/products",(req,res)=>{
+route.post("/api/products", (req,res)=>{
     const newProduct=req.body;
     products.push({...newProduct,id:Id++});
+
     res.json({message:` ${newProduct.title} added to products list`})
 });
 
-
 //update product
-route.put("/api/porducts/:pid", (requ,res)=>{
-    const productId= parseInt(requ.params.pid) ; 
-    const updateFields= requ.body
-    let index= products.indexOf(products.find((prod)=>prod.id===productId));
-    if (index!=-1)res.json({message:`producto actualizado`})
+route.put("/api/products/:pid", (req, res) => {
+    const productId = parseInt(req.params.pid);
+    const updateFields = req.body;
+    let productToUpdate = products.find((prod) => prod.id === productId);
+    if (!productToUpdate) {
+        return res.status(404).json({ message: `Product with ID ${productId} not found` });
+    }
 
+    // Actualiza los campos del producto
+    Object.assign(productToUpdate, updateFields);
 
+    res.json({ message: `Product updated` });
 });
 
 
 // delete product by
-route.delete("/api/products/:pid", (requ,res)=>{
+route.delete("/api/products/:pid", async(requ,res)=>{
     const id= parseInt(requ.params.pid);
-    let index= products.indexOf(products.find((prod)=>prod.id===id));
-    products.splice(index,1)
+    let prodDelete=products.find((prod)=>prod.id===id)
+   
+    if (!prodDelete) {
+        return res.status(404).json({ message: `Product with ID ${id} not found` });
+    }
+    let index= products.indexOf(prodDelete);
+    products.splice(index,1);
     res.json({message:`se ha eliminado el producto`})
 })
 module.exports= route;
