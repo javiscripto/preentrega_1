@@ -2,9 +2,18 @@ const express=require("express");
 const route=express.Router();
 
 
-//const fs= require("fs/promises");
+const fs= require("fs/promises");
 
-const localpath="./products.json"
+const writeProducts = async (prod) => {
+    try {
+        let currentProducts = JSON.parse(await fs.readFile("./products.json","utf-8"));
+        let localProducts = [...currentProducts, prod];
+        await fs.writeFile("./products.json", JSON.stringify(localProducts));
+        return "success";
+    } catch (error) {
+        throw error; 
+    }
+};
 
 
 
@@ -12,14 +21,6 @@ const localpath="./products.json"
 let products=[];
 
 let Id=0;
-
-
-
-
-
-
-
-
 
 //all products
 route.get("/api/products",(requ,res)=>{
@@ -35,11 +36,12 @@ route.get("/api/products/:pid",(requ,res)=>{
 })
 
 //add new product
-route.post("/api/products", (req,res)=>{
+route.post("/products", (req,res)=>{
     const newProduct=req.body;
     products.push({...newProduct,id:Id++});
-
+    writeProducts(newProduct)
     res.json({message:` ${newProduct.title} added to products list`})
+    
 });
 
 //update product

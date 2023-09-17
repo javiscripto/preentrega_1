@@ -5,7 +5,7 @@ const writeProducts = async (prod) => {
         await fs.writeFile(localpath, JSON.stringify(localProducts));
         return "success";
     } catch (error) {
-        throw error; // Manejo de errores
+        throw error; 
     }
 };
 
