@@ -1,1 +1,15 @@
 <h1>home</h1>
+<h2>list all products</h2>
+<div>
+    {{#each productsJson}}
+
+    <div>
+        <h3>{{title}}</h3>
+        <p> description:{{description}} </p>
+        <p> price: ${{price}} </p>
+        <p> category: {{cat}} </p>
+    </div>
+
+      
+    {{/each}}
+</div>

@@ -2,7 +2,7 @@ const express= require("express");
 const path=require("path");
 const app= express();
 const PORT=8080;
-
+const fs=require("fs/promises")
 
 
 
@@ -37,8 +37,16 @@ app.use("/",products)
 app.use("/",carts)
 
 //render views handlebars
-app.get("/hbs",(req,res)=>{
-    res.render("home")
+app.get("/hbs",async(req,res)=>{
+    let productsJson;
+    try {
+        productsJson=JSON.parse(await fs.readFile("./products.json","utf-8"));
+        res.render("home",{ productsJson})
+    } catch (error) {
+        
+    }
+    
+    
 })
 
 app.get("/realtimeproducts",(req, res)=>{
