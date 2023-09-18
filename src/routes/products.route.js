@@ -6,8 +6,9 @@ const fs= require("fs/promises");
 
 const writeProducts = async (prod) => {
     try {
+
         let currentProducts = JSON.parse(await fs.readFile("./products.json","utf-8"));
-        let localProducts = [...currentProducts, prod];
+        let localProducts = [...currentProducts, {...prod,id:currentProducts.length++}];
         await fs.writeFile("./products.json", JSON.stringify(localProducts));
         return "success";
     } catch (error) {
@@ -23,9 +24,16 @@ let products=[];
 let Id=0;
 
 //all products
-route.get("/api/products",(requ,res)=>{
+route.get("/api/products", async (req, res) =>{
+    let productsJson;
+    try {
+        productsJson = JSON.parse(await fs.readFile("./products.json", "utf-8"));
+        res.send(productsJson);
+    } catch (error) {
+        console.log("error de lectura");
+        res.status(500).send("Error de lectura del archivo");
+    }
     
-    res.send(products)
 });
 
 //product by id
@@ -53,7 +61,6 @@ route.put("/api/products/:pid", (req, res) => {
         return res.status(404).json({ message: `Product with ID ${productId} not found` });
     }
 
-    // Actualiza los campos del producto
     Object.assign(productToUpdate, updateFields);
 
     res.json({ message: `Product updated` });
