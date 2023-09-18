@@ -3,8 +3,7 @@ const path=require("path");
 const app= express();
 const PORT=8080;
 
-const http=require("http").createServer(app)
-const io= require("socket.io")(http)
+
 
 
 //set handlebars
@@ -55,14 +54,13 @@ app.get("/",(req,resp)=>{
 
 app.listen(PORT,()=>{
     console.log(`sirviendo en el puerto ${PORT}`)
+  
 })
 
 //set socket
 
-
-
-
-
+const http=require("http").createServer(app)
+const io= require("socket.io")(http)
 
 
 io.on("connection",(Socket)=>{

@@ -37,10 +37,17 @@ route.get("/api/products", async (req, res) =>{
 });
 
 //product by id
-route.get("/api/products/:pid",(requ,res)=>{
+route.get("/api/products/:pid",async(requ,res)=>{
     const id = Number(requ.params.pid);
-    let product= products.find((prod)=>prod.id==id);
-    product?res.json({product}):res.status(400).send(`product not found`)
+    let productsJson;
+    try {
+        productsJson=JSON.parse(await fs.readFile("./products.json","utf-8"));
+        let product= productsJson.find((prod)=>prod.id==id);
+        product?res.json({product}):res.status(400).send(`product not found`)
+    } catch (error) {
+        console.log("error de lectura")
+    }
+    
 })
 
 //add new product
@@ -67,16 +74,22 @@ route.put("/api/products/:pid", (req, res) => {
 });
 
 
-// delete product by
+// delete product by id
 route.delete("/api/products/:pid", async(requ,res)=>{
     const id= parseInt(requ.params.pid);
-    let prodDelete=products.find((prod)=>prod.id===id)
-   
-    if (!prodDelete) {
-        return res.status(404).json({ message: `Product with ID ${id} not found` });
+    let productsJson;
+    try {
+        productsJson=JSON.parse(await fs.readFile("./products.json","utf-8"));
+        let productDelete=productsJson.find((prod)=>prod.id===id);
+        if(!productDelete){return res.status(404).json({message:`product ID ${id} not found`})};
+
+        let index= productsJson.indexOf(productDelete);
+        productsJson.splice(index,1);
+        await fs.writeFile("./products.json", JSON.stringify(productsJson));
+        res.json({message:`producto eliminado`})
+        
+    } catch (error) {
+        console.log(`error de escritura`)
     }
-    let index= products.indexOf(prodDelete);
-    products.splice(index,1);
-    res.json({message:`se ha eliminado el producto`})
 })
 module.exports= route;
