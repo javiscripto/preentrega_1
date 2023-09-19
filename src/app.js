@@ -43,7 +43,7 @@ app.get("/hbs",async(req,res)=>{
         productsJson=JSON.parse(await fs.readFile("./products.json","utf-8"));
         res.render("home",{ productsJson})
     } catch (error) {
-        
+        console.log("error de lectura")
     }
     
     
@@ -61,26 +61,40 @@ app.get("/",(req,resp)=>{
 })
 
 app.listen(PORT,()=>{
-    console.log(`sirviendo en el puerto ${PORT}`)
+    console.log(`sirviendo en el puerto ${PORT}`);
+    console.log(__dirname,`public`)
   
 })
-
+/////////////////////////////////////////////////////////
 //set socket
+const http = require("http");
+const socketIo= require("socket.io");
+const server=http.createServer(app);
+const io=socketIo(server)
 
-const http=require("http").createServer(app)
-const io= require("socket.io")(http)
+
+app.use('/socket.io', express.static(__dirname + '/node_modules/socket.io/client-dist'));
 
 
-io.on("connection",(Socket)=>{
-    console.log(`cliente conectado`);
-    //necesito un evento personalizado
-    Socket.on("mensaje",(data)=>{
-        console.log(`mensaje recibido`,data);
-        io.emit("mensaje",data)
-    })
+const sendProducts=async()=>{
+    try {
+        let sendProducts= JSON.parse(await fs.readFile("./products.json","utf-8"))
+    return sendProducts;
+    } catch (error) {
+        console.error("error al leer archivo", error);
+    }
+    
+}
 
-    //escuchar un evento de desconeccion
-    Socket.on("disconnect",()=>{
+
+io.on("connection",(socket)=>{
+    console.log("cliente conectado");
+
+    socket.emit("data", sendProducts() );
+
+    socket.on("disconnect",()=>{
         console.log("cliente desconectado")
     })
+
 })
+
